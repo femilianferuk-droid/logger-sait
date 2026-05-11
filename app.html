@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Vest Logger | Конструктор фишинг-ботов</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #03050A;
+            --surface: #060B11;
+            --surface2: #0A1118;
+            --border: #152028;
+            --green: #00FFB2;
+            --green2: #00D68F;
+            --blue: #0095FF;
+            --text: #F0F4F8;
+            --text2: #8899AA;
+            --gradient: linear-gradient(135deg, #00FFB2 0%, #0095FF 100%);
+            --gradient2: linear-gradient(135deg, #00D68F 0%, #0077CC 100%);
+            --radius: 20px;
+            --radius-sm: 12px;
+            --shadow-green: 0 0 80px rgba(0, 255, 178, 0.08);
+            --shadow-blue: 0 0 60px rgba(0, 149, 255, 0.06);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--text);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* Анимированный фон */
+        .bg-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(60px, 60px); }
+        }
+
+        .bg-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.4;
+            animation: orbFloat 8s ease-in-out infinite;
+        }
+
+        .bg-orb-1 {
+            width: 600px;
+            height: 600px;
+            background: rgba(0, 255, 178, 0.06);
+            top: -200px;
+            right: -150px;
+        }
+
+        .bg-orb-2 {
+            width: 500px;
+            height: 500px;
+            background: rgba(0, 149, 255, 0.05);
+            bottom: -150px;
+            left: -100px;
+            animation-delay: -4s;
+        }
+
+        @keyframes orbFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.05); }
+            66% { transform: translate(-20px, 20px) scale(0.95); }
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+
+        .gradient-text {
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .accent-green {
+            color: var(--green);
+        }
+
+        .text-dim {
+            color: var(--text2);
+        }
+
+        /* Кнопки */
+        .btn {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            padding: 16px 36px;
+            border-radius: 50px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1.2);
+            text-decoration: none;
+            letter-spacing: 0.01em;
+            position: relative;
+            overflow: hidden;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--gradient2);
+            color: #03050A;
+            box-shadow: 0 8px 40px rgba(0, 255, 178, 0.25);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 16px 50px rgba(0, 255, 178, 0.4);
+        }
+
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.15), transparent);
+            transform: rotate(45deg);
+            transition: 0.5s;
+            opacity: 0;
+        }
+
+        .btn-primary:hover::after {
+            opacity: 1;
+            left: 100%;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--border);
+            color: var(--text);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--green);
+            color: var(--green);
+            box-shadow: 0 0 30px rgba(0, 255, 178, 0.1);
+        }
+
+        /* Секции */
+        section {
+            padding: 100px 0;
+            position: relative;
+        }
+
+        .section-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--green);
+            margin-bottom: 16px;
+            display: inline-block;
+            padding: 6px 16px;
+            background: rgba(0, 255, 178, 0.06);
+            border-radius: 50px;
+            border: 1px solid rgba(0, 255, 178, 0.15);
+        }
+
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            color: var(--text);
+            line-height: 1.15;
+        }
+
+        .section-subtitle {
+            font-size: 1.15rem;
+            color: var(--text2);
+            margin-bottom: 56px;
+            max-width: 500px;
+        }
+
+        /* Hero */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .hero-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.25em;
+            color: var(--green);
+            margin-bottom: 28px;
+            padding: 8px 20px;
+            background: rgba(0, 255, 178, 0.05);
+            border: 1px solid rgba(0, 255, 178, 0.2);
+            border-radius: 50px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(0, 255, 178, 0.2); }
+            50% { box-shadow: 0 0 0 12px rgba(0, 255, 178, 0); }
+        }
+
+        .hero h1 {
+            font-size: clamp(2.8rem, 7vw, 5rem);
+            line-height: 1.05;
+            margin-bottom: 20px;
+            letter-spacing: -0.04em;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            margin-bottom: 48px;
+            color: var(--text2);
+            max-width: 550px;
+            line-height: 1.7;
+        }
+
+        .hero-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            justify-content: center;
+        }
+
+        /* Карточки сценариев */
+        .scenarios-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .scenario-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 40px 32px;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1.2);
+            position: relative;
+            overflow: hidden;
+            cursor: default;
+        }
+
+        .scenario-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: 0;
+        }
+
+        .scenario-card:hover {
+            border-color: rgba(0, 255, 178, 0.4);
+            transform: translateY(-8px);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5), var(--shadow-green);
+        }
+
+        .scenario-card:hover::before {
+            opacity: 0.03;
+        }
+
+        .scenario-card > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .scenario-icon {
+            font-size: 3rem;
+            margin-bottom: 24px;
+            display: block;
+            width: 70px;
+            height: 70px;
+            background: rgba(0, 255, 178, 0.06);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(0, 255, 178, 0.1);
+        }
+
+        .scenario-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--text);
+        }
+
+        .scenario-card p {
+            color: var(--text2);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        .tag {
+            background: rgba(0, 255, 178, 0.08);
+            color: var(--green);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            padding: 5px 12px;
+            border-radius: 50px;
+            display: inline-block;
+            margin-bottom: 20px;
+            border: 1px solid rgba(0, 255, 178, 0.15);
+            letter-spacing: 0.05em;
+        }
+
+        /* Возможности */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .feature-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 28px 28px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            border-color: rgba(0, 255, 178, 0.3);
+            background: var(--surface2);
+            transform: translateX(4px);
+        }
+
+        .feature-icon-box {
+            width: 52px;
+            height: 52px;
+            min-width: 52px;
+            background: rgba(0, 255, 178, 0.06);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            border: 1px solid rgba(0, 255, 178, 0.1);
+        }
+
+        .feature-text strong {
+            display: block;
+            color: var(--text);
+            font-size: 1rem;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        .feature-text span {
+            color: var(--text2);
+            font-size: 0.85rem;
+        }
+
+        /* Как работает */
+        .steps-horizontal {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0;
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        @media (max-width: 768px) {
+            .steps-horizontal {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .step-item {
+            padding: 36px 28px;
+            text-align: center;
+            position: relative;
+            border-right: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .step-item:last-child {
+            border-right: none;
+        }
+
+        .step-item:hover {
+            background: var(--surface2);
+        }
+
+        .step-num {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient);
+            color: #03050A;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin: 0 auto 20px;
+        }
+
+        .step-item p {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+        }
+
+        .step-item small {
+            color: var(--text2);
+            font-size: 0.8rem;
+        }
+
+        /* Статистика */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        @media (max-width: 640px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 32px 24px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: rgba(0, 255, 178, 0.3);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-green);
+        }
+
+        .stat-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 3rem;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: block;
+            line-height: 1;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: var(--text2);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* CTA */
+        .cta-section {
+            text-align: center;
+            padding: 120px 0;
+        }
+
+        .cta-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 60px 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-card::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(0,255,178,0.06) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .cta-card h2 {
+            font-size: 2.8rem;
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .cta-card p {
+            color: var(--text2);
+            font-size: 1.1rem;
+            margin-bottom: 36px;
+            position: relative;
+        }
+
+        .cta-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* Футер */
+        .footer-bar {
+            text-align: center;
+            padding: 32px 0;
+            border-top: 1px solid var(--border);
+            color: var(--text2);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        /* Анимации появления */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(40px);
+            animation: fadeUp 0.8s ease forwards;
+        }
+
+        .fade-up:nth-child(2) { animation-delay: 0.15s; }
+        .fade-up:nth-child(3) { animation-delay: 0.3s; }
+        .fade-up:nth-child(4) { animation-delay: 0.45s; }
+
+        @keyframes fadeUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .section-title {
+                font-size: 2.2rem;
+            }
+            .cta-card h2 {
+                font-size: 2rem;
+            }
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-grid"></div>
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="container">
+            <div class="fade-up">
+                <div class="hero-badge">⚡ Бесплатно навсегда</div>
+            </div>
+            <h1 class="fade-up">
+                Vest Logger — <span class="gradient-text">Создай фишинг-бота</span><br>за 60 секунд
+            </h1>
+            <p class="fade-up">
+                3 сценария. Мгновенный запуск. TDATA + 2FA в личку. Бесплатно.
+            </p>
+            <div class="hero-buttons fade-up">
+                <a href="https://t.me/LinkLoggHgsRr" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+                    🚀 Создать бота
+                </a>
+                <a href="#scenarios" class="btn btn-outline">
+                    Смотреть сценарии ↓
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Сценарии -->
+    <section id="scenarios">
+        <div class="container">
+            <span class="section-label fade-up">Сценарии</span>
+            <h2 class="section-title fade-up">Выбери механику<br>под свой трафик</h2>
+            <div class="scenarios-grid">
+                <div class="scenario-card fade-up">
+                    <div class="scenario-icon">🤖</div>
+                    <span class="tag">Высокое доверие</span>
+                    <h3>Комбайн</h3>
+                    <p>Жертва видит функционального бота. Для доступа к функциям — добавляет аккаунт. <span class="accent-green">TDATA ваш.</span></p>
+                </div>
+                <div class="scenario-card fade-up">
+                    <div class="scenario-icon">👑</div>
+                    <span class="tag">Макс. конверсия</span>
+                    <h3>Премка</h3>
+                    <p>Telegram Premium на год бесплатно. Жертва проходит "проверку": номер → код → 2FA.</p>
+                </div>
+                <div class="scenario-card fade-up">
+                    <div class="scenario-icon">⚡</div>
+                    <span class="tag">Холодный трафик</span>
+                    <h3>Автовход</h3>
+                    <p>Минимум шагов. Номер → код → готово. Идеально для быстрой отработки.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Возможности -->
+    <section>
+        <div class="container">
+            <span class="section-label fade-up">Возможности</span>
+            <h2 class="section-title fade-up">Полный арсенал<br>для работы</h2>
+            <div class="features-grid">
+                <div class="feature-item fade-up">
+                    <div class="feature-icon-box">📱</div>
+                    <div class="feature-text">
+                        <strong>TDATA + пароль</strong>
+                        <span>В реальном времени</span>
+                    </div>
+                </div>
+                <div class="feature-item fade-up">
+                    <div class="feature-icon-box">🔗</div>
+                    <div class="feature-text">
+                        <strong>Прокладки</strong>
+                        <span>Для перелива трафика</span>
+                    </div>
+                </div>
+                <div class="feature-item fade-up">
+                    <div class="feature-icon-box">🚫</div>
+                    <div class="feature-text">
+                        <strong>Кик сессий</strong>
+                        <span>В 1 клик, оставляет только вашу</span>
+                    </div>
+                </div>
+                <div class="feature-item fade-up">
+                    <div class="feature-icon-box">📊</div>
+                    <div class="feature-text">
+                        <strong>Логи и статистика</strong>
+                        <span>По каждому боту</span>
+                    </div>
+                </div>
+                <div class="feature-item fade-up">
+                    <div class="feature-icon-box">⚡</div>
+                    <div class="feature-text">
+                        <strong>Автозапуск</strong>
+                        <span>И автовосстановление</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Как работает -->
+    <section>
+        <div class="container">
+            <span class="section-label fade-up">Процесс</span>
+            <h2 class="section-title fade-up">Как это работает</h2>
+            <div class="steps-horizontal fade-up">
+                <div class="step-item">
+                    <div class="step-num">1</div>
+                    <p>Создаёте бота</p>
+                    <small>Токен + название</small>
+                </div>
+                <div class="step-item">
+                    <div class="step-num">2</div>
+                    <p>Сценарий</p>
+                    <small>Комбайн / Премка / Автовход</small>
+                </div>
+                <div class="step-item">
+                    <div class="step-num">3</div>
+                    <p>Кидаете ссылку</p>
+                    <small>Жертва вводит данные</small>
+                </div>
+                <div class="step-item">
+                    <div class="step-num">4</div>
+                    <p>Доступ</p>
+                    <small>TDATA + пароль в Telegram</small>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Цифры -->
+    <section>
+        <div class="container">
+            <span class="section-label fade-up">Цифры</span>
+            <h2 class="section-title fade-up">Результаты говорят<br>сами за себя</h2>
+            <div class="stats-grid">
+                <div class="stat-card fade-up">
+                    <span class="stat-number">20+</span>
+                    <span class="stat-label">Ботов можно запустить</span>
+                </div>
+                <div class="stat-card fade-up">
+                    <span class="stat-number">3</span>
+                    <span class="stat-label">Сценария фишинга</span>
+                </div>
+                <div class="stat-card fade-up">
+                    <span class="stat-number">1000+</span>
+                    <span class="stat-label">Аккаунтов собрано</span>
+                </div>
+                <div class="stat-card fade-up">
+                    <span class="stat-number">0₽</span>
+                    <span class="stat-label">Полностью бесплатно</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-card fade-up">
+                <h2>Начни собирать<br>аккаунты <span class="gradient-text">сейчас</span></h2>
+                <p>Бесплатно. Быстро. Автоматически.</p>
+                <div class="cta-buttons">
+                    <a href="https://t.me/LinkLoggHgsRr" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+                        ⚡ Запустить первого бота
+                    </a>
+                    <a href="https://t.me/LinkLoggHgsRr" target="_blank" rel="noopener noreferrer" class="btn btn-outline">
+                        📢 Актуальные боты в канале
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="footer-bar">
+        Vest Logger © 2025 · Скорость и бесплатность
+    </div>
+
+</body>
+</html>
